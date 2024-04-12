@@ -11,6 +11,7 @@ export default function RegisterSupplierScreen() {
         console.log('Register supplier pressed !')
 
         //Generate QR Code
+        navigation.navigate('QRCode')
     }
   return (
     <SafeAreaView className="flex-1 bg-gray-100 p-5">
