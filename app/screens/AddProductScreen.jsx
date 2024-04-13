@@ -1,25 +1,56 @@
-import { View, Text, SafeAreaView, FlatList, Button } from "react-native";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  Button,
+  TextInput,
+  StyleSheet,
+} from "react-native";
 import React, { useState } from "react";
-import AddProductComponent from "./../components/AddProductComponent";
+import ProductListComponent from "../components/ProductListComponent";
 import { useNavigation } from "@react-navigation/native";
+import RNPickerSelect from "react-native-picker-select";
 
 export default function AddProductScreen() {
-    const navigation = useNavigation();
-  // Sample data for the table
-  const data = [
-    { id: "1", product: "Karafuu kavu", unit: "Bag", quantity: 5 },
-    // Add more data as needed
+  const navigation = useNavigation();
+  // List
+  const product_data = [
+    { id: 1, label: "Karafuu kavu", value: "karafuu kavu" },
+    { id: 1, label: "karafuu mbichi", value: "karafuu mbichi" },
+    { id: 1, label: "karafuu kati na kati", value: "karafuu kati na kati" },
+  ];
+  const unit_data = [
+    { id: 1, label: "Bag", value: "Bag" },
+    { id: 1, label: "Piece", value: "Piece" },
   ];
 
-  // Render individual table rows
-  const renderItem = ({ item }) => (
-    <View className="flex-row justify-between border-b-2 border-gray-300 py-1">
-      <Text className="flex-1 text-center font-large">{item.product}</Text>
-      <Text className="flex-1 text-center font-large">{item.unit}</Text>
-      <Text className="flex-1 text-center font-large">{item.quantity}</Text>
-    </View>
-  );
+  // Variable
+  const [selected_product, setSelectedProduct] = useState(null);
+  const [selected_unit, setSelectedUnit] = useState(null);
+  const [quantity, setQuantity] = useState("");
+  const [products, setProducts] = useState([]);
 
+  const handleAddProduct = () => {
+    if (!quantity || !selected_product || !selected_unit) {
+      alert("Please fill out all the fields.");
+      return;
+    }
+    //create new product
+    const new_product = {
+      id: Math.random.toString(),
+      product: selected_product,
+      unit: selected_unit,
+      quantity: parseInt(quantity, 10),
+    };
+
+    //add new product to product list
+    setProducts([...products, new_product]);
+
+    // Reset form fields after adding the product
+    // setSelectedProduct(null);
+    // setSelectedUnit(null);
+    // setQuantity("");
+  };
   return (
     <SafeAreaView className="flex-1 bg-gray-100 p-2">
       <View className="flex-1 bg-white rounded-lg shadow-md p-2">
@@ -27,36 +58,60 @@ export default function AddProductScreen() {
 
         <View className="border border-gray-300 my-2"></View>
 
-        <AddProductComponent />
+        <View>
+          <Text className="text-lg font-bold">Product :</Text>
+          <RNPickerSelect
+            placeholder={{ label: "Select", value: null }}
+            onValueChange={(value) => setSelectedProduct(value)}
+            items={product_data}
+          />
 
-        <View className="mt-8">
-          {/* Table Header */}
-          <View className="flex-row justify-between border-b-2 border-gray-300 py-1">
-            <Text className="flex-1 text-center font-bold text-lg">
-              Product
-            </Text>
-            <Text className="flex-1 text-center font-bold text-lg">Unit</Text>
-            <Text className="flex-1 text-center font-bold text-lg">
-              Quantity
-            </Text>
+          <View className="flex-row">
+            <View className="flex-1">
+              <Text className="text-lg font-bold">Unit :</Text>
+              <RNPickerSelect
+                placeholder={{ label: "Select", value: null }}
+                onValueChange={(value) => setSelectedUnit(value)}
+                items={unit_data}
+              />
+            </View>
+            <View className="flex-1">
+              <Text className="text-lg font-bold">Quantity :</Text>
+              <TextInput
+                value={quantity}
+                onChangeText={(text) => setQuantity(text)}
+                keyboardType="numeric"
+                placeholder="Enter number"
+                className="py-2 border border-gray-300 px-4 mb-2"
+              />
+            </View>
           </View>
 
-          {/* FlatList to render table rows */}
-          <FlatList
-            data={data}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            className="mt-3"
+          <Button
+            title="Add"
+            className="bg-blue-300 mx-4"
+            onPress={handleAddProduct}
           />
         </View>
 
-        <View className="flex-1 justify-end">
-        <Button
-          title="Submit"
-          className="bg-green-300 mx-4 items-baseline flex-1"
-          onPress={()=>{navigation.navigate('QRCodeScanner')}}
-        />
-        </View>
+        { products.length > 0 ? (
+          <View>
+            <ProductListComponent productList={products} />
+            <View className="my-2">
+              <Button
+                title="Submit"
+                color="green"
+                onPress={() => {
+                  navigation.navigate("QRCodeScanner");
+                }}
+              />
+            </View>
+          </View>
+        ) : (
+          <View className="flex-1 justify-center items-center">
+            <Text className="text-red-700 text-lg">No products added yet</Text>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
