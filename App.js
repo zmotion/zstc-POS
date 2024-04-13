@@ -7,6 +7,7 @@ import RegisterSupplierScreen from './app/screens/RegisterSupplierScreen';
 import QRCodeScannerScreen from './app/screens/QRCodeScannerScreen';
 import QRCodeScreen from './app/modals/QRCodeModel';
 import AddProductScreen from './app/screens/AddProductScreen';
+import OrderPreviewScreen from './app/screens/OrderPreviewScreen'
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
         <Stack.Screen name="AddSupplier" component={RegisterSupplierScreen} options={{title: "Register Supplier", headerShown: true}}></Stack.Screen>
         <Stack.Screen name="QRCodeScanner" component={QRCodeScannerScreen} options={{title: "Scan QR Code", headerShown: true}}></Stack.Screen>
         <Stack.Screen name="AddProduct" component={AddProductScreen} options={{title: "Add Products", headerShown: true}}></Stack.Screen>
+        <Stack.Screen name="OrderPreview" component={OrderPreviewScreen} options={{title: "Product Orders", headerShown: true}}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

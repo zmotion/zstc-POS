@@ -44,7 +44,7 @@ export default function AddProductScreen() {
     };
 
     //add new product to product list
-    setProducts([...products, new_product]);
+    setProducts([...products, {text: new_product, key: Math.random().toString()}]);
 
     // Reset form fields after adding the product
     // setSelectedProduct(null);
