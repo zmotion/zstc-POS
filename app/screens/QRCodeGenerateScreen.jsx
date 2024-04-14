@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
-import { SPrinter, Constants } from '@makgabri/react-native-sunmi-printer';
+// import { SPrinter, Constants } from '@makgabri/react-native-sunmi-printer';
 import React from 'react'
 import QrCodePage from '../components/QRCodeComponent';
 

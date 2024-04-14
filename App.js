@@ -16,14 +16,15 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="SearchSupplier" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen}></Stack.Screen>
-        <Stack.Screen name="SearchSupplier" component={SearchScreen} options={{ title: "Search supplier" }}></Stack.Screen>
-        <Stack.Screen name="AddSupplier" component={RegisterSupplierScreen} options={{ title: "Register Supplier", headerShown: true }}></Stack.Screen>
-        <Stack.Screen name="QRCodeScanner" component={QRCodeScannerScreen} options={{ title: "Scan QR Code", headerShown: true }}></Stack.Screen>
-        <Stack.Screen name='QRCodeGenerator' component={QRCodeGenerateScreen} options={{ title: "Generate QR Code", headerShown: false }}></Stack.Screen>
-        <Stack.Screen name="AddProduct" component={AddProductScreen} options={{ title: "Add Products", headerShown: true }}></Stack.Screen>
-        <Stack.Screen name="OrderPreview" component={OrderPreviewScreen} options={{ title: "Product Orders", headerShown: true }}></Stack.Screen>
+      <Stack.Navigator initialRouteName="home" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="home" component={HomeScreen}></Stack.Screen>
+        <Stack.Screen name="login" component={LoginScreen}></Stack.Screen>
+        <Stack.Screen name="searchSupplier" component={SearchScreen} options={{title: "Search supplier"}}></Stack.Screen>
+        <Stack.Screen name="addSupplier" component={RegisterSupplierScreen} options={{title: "Register Supplier", headerShown: true}}></Stack.Screen>
+        <Stack.Screen name="QRCodeScanner" component={QRCodeScannerScreen} options={{title: "Scan QR Code", headerShown: true}}></Stack.Screen>
+        <Stack.Screen name="addProduct" component={AddProductScreen} options={{title: "Add Products", headerShown: true}}></Stack.Screen>
+        <Stack.Screen name="supplierProduct" component={SupplierProductScreen} options={{title: "Supplier Product"}}></Stack.Screen>
+        <Stack.Screen name="supplierProductPreview" component={SupplierProductPreviewScreen} options={{title: "Supplier Product Preview"}}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -8,7 +8,6 @@ import {
   Alert,
 } from "react-native";
 import HeaderComponent from "../components/HeaderComponent";
-import { useNavigation } from "@react-navigation/native";
 
 export default function OrderPreviewScreen({ route }) {
   const order = route.params.order_details;
@@ -16,10 +15,17 @@ export default function OrderPreviewScreen({ route }) {
   const navigation = useNavigation();
 
   useEffect(() => {
-    if (order && order.products) {
-      setProducts(order.products);
-    }
-  }, [order]);
+    // fetchData();
+  }, []);
+
+  // const fetchData = async () => {
+  //   try {
+  //     const response = await axios.get('https://localhost:3000/former_order');
+  //     setProducts(response.data);
+  //   } catch (error) {
+  //     console.error('API Error:', error);
+  //   }
+  // };
 
   let totalAmountSum = 0;
 

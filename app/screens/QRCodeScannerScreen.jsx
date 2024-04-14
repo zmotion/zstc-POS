@@ -1,25 +1,15 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Button,
-  StyleSheet,
-  TouchableOpacity,
-  Platform,
-} from "react-native";
-import { Camera } from "expo-camera";
-import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Audio } from "expo-av";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Permissions } from "expo";
+import { View, Text, Button, StyleSheet } from 'react-native'
+import React, {useState, useEffect} from 'react'
+import { Camera } from 'expo-camera';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { idText } from 'typescript';
 
-export default function QRCodeScannerScreen({ route }) {
+export default function QRCodeScannerScreen({route}) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const navigation = useNavigation();
-  const [orderData, setOrderData] = useState(null);
-  const [flashMode, setFlashMode] = useState(Camera.Constants.FlashMode.off);
+  const navigation =  useNavigation();
+  const [orderData, setOrderData] =  useState([]);
 
   useEffect(() => {
     (async () => {
@@ -28,69 +18,31 @@ export default function QRCodeScannerScreen({ route }) {
     })();
   }, []);
 
-  useEffect(() => {
-    if (scanned && orderData) {
-      console.log("order data", orderData);
-
-      if (route.params.next === "Checker") {
-        navigation.navigate("addProduct", { order_details: orderData });
-      }
-      if (route.params.next == "Weighter") {
-        navigation.navigate("supplierProduct", { order_details: orderData });
-      }
-
-      if (route.params.next == "Accountant") {
-        navigation.navigate("supplierProductPreview", {
-          order_details: orderData,
-        });
-      }
-    }
-  }, [scanned, orderData, navigation, route.params.next]);
-
-  const playBeepSound = async () => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(
-        require("./assets/beep.mp3")
-      );
-      await sound.playAsync();
-    } catch (error) {
-      console.log("Error playing beep sound:", error);
-    }
-  };
-
-  const toggleFlash = () => {
-    setFlashMode(
-      flashMode === Camera.Constants.FlashMode.off
-        ? Camera.Constants.FlashMode.torch
-        : Camera.Constants.FlashMode.off
-    );
-  };
-
-  const handleBarCodeScanned = async ({ type, data }) => {
-    setScanned(true);
-    getData(data);
-    // playBeepSound();
-
-    if (Platform.OS === "ios") {
-      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-      if (status === "granted") {
-        console.log("Camera roll permission granted.");
-      } else {
-        console.log("Camera roll permission denied.");
-      }
-    }
-  };
-
   const getData = async (order_number) => {
     try {
       const jsonValue = await AsyncStorage.getItem(order_number);
-      setOrderData({
-        order_number: order_number,
-        ...(jsonValue ? JSON.parse(jsonValue) : null),
-      });
+      setOrderData(jsonValue)
+      // return jsonValue != null ? JSON.parse(jsonValue) : null;
     } catch (e) {
-      console.log(e);
+      console.log(e)
     }
+  };
+
+  const handleBarCodeScanned = ({ type, data }) => {
+    setScanned(true);
+
+   getData(data)
+
+   if(orderData){
+    console.log('order data', orderData)
+
+    if(route.params.next == 'Checker'){
+      navigation.navigate('addProduct', {'order_details': orderData})
+    }
+    console.log(route.params.next)
+   }
+    
+    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
   };
 
   if (hasPermission === null) {
