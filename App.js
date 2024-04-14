@@ -1,10 +1,11 @@
 import React from 'react';
-import {NavigationContainer} from "@react-navigation/native"
-import {createNativeStackNavigator} from "@react-navigation/native-stack"
+import { NavigationContainer } from "@react-navigation/native"
+import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import SearchScreen from './app/screens/SearchScreen';
 import LoginScreen from './app/screens/LoginScreen';
 import RegisterSupplierScreen from './app/screens/RegisterSupplierScreen';
 import QRCodeScannerScreen from './app/screens/QRCodeScannerScreen';
+import QRCodeGenerateScreen from './app/screens/QRCodeGenerateScreen';
 import QRCodeScreen from './app/modals/QRCodeModel';
 import AddProductScreen from './app/screens/AddProductScreen';
 import SupplierProductScreen from './app/screens/SupplierProductScreen';
