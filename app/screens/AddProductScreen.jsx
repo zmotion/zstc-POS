@@ -65,12 +65,12 @@ export default function AddProductScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-100 p-2">
       <View className="flex-1 bg-white rounded-lg shadow-md p-2">
-        <Text className="text-lg">Abdul-razak Moh'd Abrah-man</Text>
+        <Text className="text-xl">Abdul-razak Moh'd Abrah-man</Text>
 
         <View className="border border-gray-300 my-2"></View>
 
         <View>
-          <Text className="text-lg font-bold">Product :</Text>
+          <Text className="text-xl font-bold">Product :</Text>
           <RNPickerSelect
             placeholder={{ label: "Select", value: null }}
             onValueChange={(value) => setSelectedProduct(value)}
@@ -79,7 +79,7 @@ export default function AddProductScreen() {
 
           <View className="flex-row">
             <View className="flex-1">
-              <Text className="text-lg font-bold">Unit :</Text>
+              <Text className="text-xl font-bold">Unit :</Text>
               <RNPickerSelect
                 placeholder={{ label: "Select", value: null }}
                 onValueChange={(value) => setSelectedUnit(value)}
@@ -87,7 +87,7 @@ export default function AddProductScreen() {
               />
             </View>
             <View className="flex-1">
-              <Text className="text-lg font-bold">Quantity :</Text>
+              <Text className="text-xl font-bold">Quantity :</Text>
               <TextInput
                 value={quantity}
                 onChangeText={(text) => setQuantity(text)}

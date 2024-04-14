@@ -2,6 +2,7 @@ import { View, Text, SafeAreaView, Button } from "react-native";
 import { useState } from "react";
 import ProductListComponent from "../components/ProductListComponent";
 import { useNavigation } from "@react-navigation/native";
+import HeaderComponent from "../components/HeaderComponent";
 
 export default function SupplierProductScreen() {
   const navigation = useNavigation();
@@ -26,6 +27,8 @@ export default function SupplierProductScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100 p-1">
+      <HeaderComponent title="Supplier Product" />
+
       <View className="flex-1 bg-white rounded-lg shadow-md p-2">
         {orders.map((order, index) => (
           <View>
