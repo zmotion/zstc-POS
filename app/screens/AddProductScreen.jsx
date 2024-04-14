@@ -12,7 +12,7 @@ import ProductListComponent from "../components/ProductListComponent";
 import { useNavigation } from "@react-navigation/native";
 import RNPickerSelect from "react-native-picker-select";
 
-export default function AddProductScreen() {
+export default function AddProductScreen({ route }) {
   const navigation = useNavigation();
   // List
   const product_data = [
@@ -62,10 +62,12 @@ export default function AddProductScreen() {
     // navigation.navigate("QRCodeScanner");
   }
 
+  console.log('sijaelewa',route.params)
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100 p-2">
       <View className="flex-1 bg-white rounded-lg shadow-md p-2">
-        <Text className="text-xl">Abdul-razak Moh'd Abrah-man</Text>
+        <Text className="text-xl">{ route.params.order_details.supplier_name}</Text>
 
         <View className="border border-gray-300 my-2"></View>
 

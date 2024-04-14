@@ -1,23 +1,23 @@
 import { View, Text, SafeAreaView, FlatList, Button, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import HeaderComponent from "../components/HeaderComponent";
-import axios from "axios";
+
 
 export default function OrderPreviewScreen() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    fetchData();
+    // fetchData();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get('https://localhost:3000/former_order');
-      setProducts(response.data);
-    } catch (error) {
-      console.error('API Error:', error);
-    }
-  };
+  // const fetchData = async () => {
+  //   try {
+  //     const response = await axios.get('https://localhost:3000/former_order');
+  //     setProducts(response.data);
+  //   } catch (error) {
+  //     console.error('API Error:', error);
+  //   }
+  // };
 
   // Calculate sum of total amounts for all orders
   const totalAmountSum = products.reduce((sum, order) => {

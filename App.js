@@ -10,12 +10,14 @@ import QRCodeScreen from './app/modals/QRCodeModel';
 import AddProductScreen from './app/screens/AddProductScreen';
 import SupplierProductScreen from './app/screens/SupplierProductScreen';
 import SupplierProductPreviewScreen from './app/screens/SupplierProductPreviewScreen';
+import HomeScreen from './app/screens/HomeScreen';
 
 const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="supplierProductPreview" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="home" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="home" component={HomeScreen}></Stack.Screen>
         <Stack.Screen name="login" component={LoginScreen}></Stack.Screen>
         <Stack.Screen name="searchSupplier" component={SearchScreen} options={{title: "Search supplier"}}></Stack.Screen>
         <Stack.Screen name="addSupplier" component={RegisterSupplierScreen} options={{title: "Register Supplier", headerShown: true}}></Stack.Screen>

@@ -12,17 +12,18 @@ import {
 	Pressable,
 	Alert,
 } from "react-native";
-import * as Print from "expo-print";
-import SunmiPrinter from "@heasy/react-native-sunmi-printer";
-import { Autocomplete, filterData } from "react-native-autocomplete-input";
+// import * as Print from "expo-print";
+// import SunmiPrinter from "@heasy/react-native-sunmi-printer";
+// import { Autocomplete, filterData } from "react-native-autocomplete-input";
 import React, { useState } from "react";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from "@react-navigation/native";
 import PrintButton from "../components/PrintButton";
 
-import { SPrinter } from "@makgabri/react-native-sunmi-printer";
+// import { SPrinter } from "@makgabri/react-native-sunmi-printer";
 import QRCode from "react-native-qrcode-svg";
 import QrCodePage from "../components/QRCodeComponent";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SearchScreen() {
 	const navigation = useNavigation();
@@ -36,6 +37,31 @@ export default function SearchScreen() {
 
 		navigation.navigate("AddSupplier");
 	};
+
+	const createOrder = async(value) => {
+		const order_number = '2015112910';
+
+			setQrData(order_number);
+			setData([]);
+			setShown(true);
+		
+			try {
+			  const jsonValue = JSON.stringify({
+				"supplier_id" : value.id,
+				"supplier_name": value.name,
+				"supplier_phone": value.phone
+			  });
+
+		
+
+			 await AsyncStorage.setItem(order_number, jsonValue);
+
+			} catch (e) {
+			  console.log(e)
+			}
+		
+
+	}
 
 	const handlePrint = async () => {
 		console.log("Print button pressed");
@@ -206,7 +232,7 @@ export default function SearchScreen() {
 	};
 
 	const getItemText = (item) => {
-		setQrData(item.id);
+		// setQrData(item.id);
 		return (
 			<View style={{ flexDirection: "row", alignItems: "center", padding: 15 }}>
 				<View style={{ marginLeft: 10, flexShrink: 1 }}>
@@ -241,16 +267,12 @@ export default function SearchScreen() {
 								renderItem={({ item, index }) => (
 									<Pressable
 										style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
-										onPress={() => {
-											setQrData(`${item.id}-${item.name}`);
-											setData([]);
-											setShown(true);
-										}}
+										onPress={() => createOrder(item)}
 									>
 										{getItemText(item)}
 									</Pressable>
 								)}
-								keyExtractor={(item, index) => item.place_id + index}
+								keyExtractor={(item, index) => item.id + index}
 							/>
 						)}
 					</View>
