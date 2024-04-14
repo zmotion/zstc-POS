@@ -5,6 +5,7 @@ import {
   Button,
   TextInput,
   StyleSheet,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import ProductListComponent from "../components/ProductListComponent";
@@ -30,7 +31,7 @@ export default function AddProductScreen() {
   const [quantity, setQuantity] = useState("");
   const [products, setProducts] = useState([]);
 
-  const handleAddProduct = () => {
+  const addProductHandler = () => {
     if (!quantity || !selected_product || !selected_unit) {
       alert("Please fill out all the fields.");
       return;
@@ -44,13 +45,23 @@ export default function AddProductScreen() {
     };
 
     //add new product to product list
-    setProducts([...products, {text: new_product, key: Math.random().toString()}]);
+    setProducts([...products, new_product]);
+
+    // Show an alert to indicate successful addition
+    Alert.alert('Success', 'New product added successfully!');
+    
 
     // Reset form fields after adding the product
     // setSelectedProduct(null);
     // setSelectedUnit(null);
     // setQuantity("");
   };
+
+  submitProductHandler = () => {
+    console.log(products);
+    // navigation.navigate("QRCodeScanner");
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100 p-2">
       <View className="flex-1 bg-white rounded-lg shadow-md p-2">
@@ -90,20 +101,19 @@ export default function AddProductScreen() {
           <Button
             title="Add"
             className="bg-blue-300 mx-4"
-            onPress={handleAddProduct}
+            onPress={ addProductHandler }
           />
         </View>
 
         { products.length > 0 ? (
           <View>
             <ProductListComponent productList={products} />
+            
             <View className="my-2">
               <Button
                 title="Submit"
                 color="green"
-                onPress={() => {
-                  navigation.navigate("QRCodeScanner");
-                }}
+                onPress={submitProductHandler}
               />
             </View>
           </View>

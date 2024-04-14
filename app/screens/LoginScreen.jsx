@@ -6,7 +6,7 @@ export default function LoginScreen() {
     const navigation = useNavigation();
 
     const handleLogin = () => {
-        navigation.navigate('SearchSupplier');
+        navigation.navigate('searchSupplier');
         
         console.log('Login button pressed');
     };

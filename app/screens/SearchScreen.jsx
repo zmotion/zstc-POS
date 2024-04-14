@@ -9,7 +9,7 @@ export default function SearchScreen() {
   const handleAddSupplier = () => {
     console.log('Add Supplier button pressed');
 
-    navigation.navigate('AddSupplier')
+    navigation.navigate('addSupplier')
   };
 
   return (
