@@ -11,24 +11,24 @@ export default function RegisterSupplierScreen() {
         console.log('Register supplier pressed !')
 
         //Generate QR Code
-        navigation.navigate('QRCode')
+        navigation.navigate('QRCodeScanner')
     }
   return (
-    <SafeAreaView className="flex-1 bg-gray-100 p-5">
-      <View className="flex-1 bg-white rounded-lg shadow-md p-4 mb-4">
-        <Text className="text-lg pb-1">Name</Text>
+    <SafeAreaView className="flex-1 p-5 bg-gray-100">
+      <View className="flex-1 p-4 mb-4 bg-white rounded-lg shadow-md">
+        <Text className="pb-1 text-lg">Name</Text>
         <TextInput
           placeholder="Enter name"
-          className="py-2 border border-gray-300 px-4 mb-2"
+          className="px-4 py-2 mb-2 border border-gray-300"
         />
 
-        <Text className="text-lg pb-1">Phone Number</Text>
+        <Text className="pb-1 text-lg">Phone Number</Text>
         <TextInput
           placeholder="Enter phone number"
-          className="py-2 border border-gray-300 px-4 mb-2"
+          className="px-4 py-2 mb-2 border border-gray-300"
         />
 
-        <Button title="Save" className="bg-blue-300 mx-4" onPress={handleRegister} />
+        <Button title="Save" className="mx-4 bg-blue-300" onPress={handleRegister} />
       </View>
     </SafeAreaView>
   );
