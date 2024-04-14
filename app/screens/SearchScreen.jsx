@@ -1,200 +1,312 @@
-import React, { useState } from "react";
 import {
-  Button,
-  FlatList,
-  SafeAreaView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  StyleSheet,
-  Keyboard,
-  Modal,
+	Button,
+	TouchableWithoutFeedback,
+	FlatList,
+	SafeAreaView,
+	Text,
+	TextInput,
+	TouchableOpacity,
+	View,
+	StyleSheet,
+	Keyboard,
+	Pressable,
+	Alert,
 } from "react-native";
+import * as Print from "expo-print";
+import SunmiPrinter from "@heasy/react-native-sunmi-printer";
+import { Autocomplete, filterData } from "react-native-autocomplete-input";
+import React, { useState } from "react";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { useNavigation } from "@react-navigation/native";
+import PrintButton from "../components/PrintButton";
+
+import { SPrinter } from "@makgabri/react-native-sunmi-printer";
 import QRCode from "react-native-qrcode-svg";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import QrCodePage from "../components/QRCodeComponent";
 
 export default function SearchScreen() {
-  const [input, setInput] = useState("");
-  const [data, setData] = useState([]);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [qrData, setQrData] = useState("");
-  const [order_title, setOrderTitle] = useState([]);
+	const navigation = useNavigation();
+	const [input, setInput] = useState("");
+	const [data, setData] = useState([]);
+	const [isShown, setShown] = useState(false);
+	const [qrData, setQrData] = useState();
 
-  const sample_data = [
-    { id: 1, name: "Muhammad Ali", phone: "+255771234567" },
-    { id: 2, name: "Fatima Hassan", phone: "+255771234568" },
-    { id: 3, name: "Ibrahim Abdullah", phone: "+255771234569" },
-  ];
+	const handleAddSupplier = () => {
+		console.log("Add Supplier button pressed");
 
-  const handleAddSupplier = () => {
-    console.log("Add Supplier button pressed");
-    // Add your navigation logic here
-  };
+		navigation.navigate("AddSupplier");
+	};
 
-  const createOrder = async (value) => {
-    const order_number = "2015112910";
-    setQrData(order_number);
-    setData([]);
-    setModalVisible(true);
-    setOrderTitle(value.name);
+	const handlePrint = async () => {
+		console.log("Print button pressed");
 
-    try {
-      const jsonValue = JSON.stringify({
-        supplier_id: value.id,
-        supplier_name: value.name,
-        supplier_phone: value.phone,
-      });
+		if (!qrData) {
+			return () => {
+				alert("Please enter a QR Code number");
+			};
+		}
 
-      await AsyncStorage.setItem(order_number, jsonValue);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+		setShown(true);
+	};
 
-  const handlePrint = () => {
-    console.log("Print button pressed");
-    // Add your print logic here
-  };
+	const onChangeText = async (text) => {
+		setInput(text);
+		// get host from localhost:19002 above the qrcode
+		if (text.length > 2) {
+			// const endpoint = `http://192.168.30.21:4000/api/search?location=${text}&limit=${5}`;
+			// let res = await fetch(endpoint);
+			// if (res) {
+			//   let data = await res.json();
+			//   if (data.length > 0) setData(data);
+			// }
+			let data = [
+				{
+					id: 1,
+					name: "Michael Rodgers",
+					phone: "0888888888",
+				},
+				{
+					id: 2,
+					name: "Jane Doe",
+					phone: "0999999999",
+				},
+				{
+					id: 3,
+					name: "John Smith",
+					phone: "0777777777",
+				},
+				{
+					id: 4,
+					name: "Emily Brown",
+					phone: "0666666666",
+				},
+				{
+					id: 5,
+					name: "David Wilson",
+					phone: "0555555555",
+				},
+				{
+					id: 6,
+					name: "Sarah Davis",
+					phone: "0444444444",
+				},
+				{
+					id: 7,
+					name: "Robert Martinez",
+					phone: "0333333333",
+				},
+				{
+					id: 8,
+					name: "Jennifer Thompson",
+					phone: "0222222222",
+				},
+				{
+					id: 9,
+					name: "Christopher Anderson",
+					phone: "0111111111",
+				},
+				{
+					id: 10,
+					name: "Amanda Taylor",
+					phone: "0000000000",
+				},
+				{
+					id: 11,
+					name: "Daniel Harris",
+					phone: "0999999999",
+				},
+				{
+					id: 12,
+					name: "Olivia Clark",
+					phone: "0888888888",
+				},
+				{
+					id: 13,
+					name: "Matthew Lewis",
+					phone: "0777777777",
+				},
+				{
+					id: 14,
+					name: "Sophia Turner",
+					phone: "0666666666",
+				},
+				{
+					id: 15,
+					name: "Ethan Rodriguez",
+					phone: "0555555555",
+				},
+				{
+					id: 16,
+					name: "Ava Martinez",
+					phone: "0444444444",
+				},
+				{
+					id: 17,
+					name: "Alexander Hernandez",
+					phone: "0333333333",
+				},
+				{
+					id: 18,
+					name: "Mia Nelson",
+					phone: "0222222222",
+				},
+				{
+					id: 19,
+					name: "William Thompson",
+					phone: "0111111111",
+				},
+				{
+					id: 20,
+					name: "Charlotte Adams",
+					phone: "0000000000",
+				},
+				{
+					id: 21,
+					name: "James Turner",
+					phone: "0999999999",
+				},
+				{
+					id: 22,
+					name: "Harper Scott",
+					phone: "0888888888",
+				},
+				{
+					id: 23,
+					name: "Benjamin Green",
+					phone: "0777777777",
+				},
+				{
+					id: 24,
+					name: "Amelia Carter",
+					phone: "0666666666",
+				},
+				{
+					id: 25,
+					name: "Daniel Hernandez",
+					phone: "0555555555",
+				},
+				{
+					id: 26,
+					name: "Mia Adams",
+					phone: "0444444444",
+				},
+				{
+					id: 27,
+					name: "Alexander Wilson",
+					phone: "0333333333",
+				},
+				{
+					id: 28,
+					name: "Sophia Davis",
+					phone: "0222222222",
+				},
+			];
+			setData(data);
+		}
+	};
 
-  const onChangeText = (text) => {
-    setInput(text);
-    // Simulating a fast search by filtering local data
-    if (text.length > 0) {
-      const filteredData = sample_data.filter((item) =>
-        item.name.toLowerCase().includes(text.toLowerCase())
-      );
-      setData(filteredData);
-    } else {
-      setData([]);
-    }
-  };
+	const getItemText = (item) => {
+		setQrData(item.id);
+		return (
+			<View style={{ flexDirection: "row", alignItems: "center", padding: 15 }}>
+				<View style={{ marginLeft: 10, flexShrink: 1 }}>
+					<Text style={{ fontWeight: "700" }}>{item.name}</Text>
+					<Text style={{ fontSize: 12 }}>{item.phone}</Text>
+				</View>
+			</View>
+		);
+	};
 
-  const getItemText = (item) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemPhone}>{item.phone}</Text>
-    </View>
-  );
+	return (
+		<TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+			<SafeAreaView className="px-2 pt-3 bg-gray-100 ">
+				<Text className="pt-3 text-3xl font-bold text-center">Search Suppliers</Text>
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.headTitle}>Search Suppliers</Text>
+				<View className="mt-2 mb-4 border-b border-gray-400" />
 
-      <View style={styles.searchContainer}>
-        <TextInput
-          onChangeText={onChangeText}
-          value={input}
-          style={styles.input}
-          placeholder="Enter The Supplier Name"
-          placeholderTextColor="#999"
-        />
-        <TouchableOpacity onPress={handleAddSupplier} style={styles.addButton}>
-          <Icon name="plus" size={20} color="black" />
-        </TouchableOpacity>
-      </View>
+				<View className="flex-row justify-between w-full p-4 mb-4 bg-white rounded-lg shadow-md">
+					<View className="">
+						<TextInput
+							onChangeText={onChangeText}
+							value={input}
+							className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+							placeholder="Enter The Supplier Name"
+							placeholderTextColor="#999"
+						/>
 
-      {input.length > 0 && data.length > 0 && (
-        <FlatList
-          data={data}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => createOrder(item)}
-              style={styles.itemButton}
-            >
-              {getItemText(item)}
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item.id.toString()}
-        />
-      )}
+						{input.length > 0 && data.length > 0 && (
+							<FlatList
+								data={data}
+								showsVerticalScrollIndicator={false}
+								renderItem={({ item, index }) => (
+									<Pressable
+										style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
+										onPress={() => {
+											setQrData(`${item.id}-${item.name}`);
+											setData([]);
+											setShown(true);
+										}}
+									>
+										{getItemText(item)}
+									</Pressable>
+								)}
+								keyExtractor={(item, index) => item.place_id + index}
+							/>
+						)}
+					</View>
 
-      <Modal animationType="slide" transparent={true} visible={isModalVisible}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>{order_title}</Text>
-          <QRCode
-            value={qrData}
-            size={250}
-            ecl="LOW"
-            bgColor="#4CAF50"
-            fgColor="#ffffff"
-          />
-          <View style={styles.modalButtonContainer}>
-            <Button title="Print Order" onPress={handlePrint} />
-            <Button title="Close" onPress={() => setModalVisible(false)} />
-          </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
-  );
+					<View className="">
+						<TouchableOpacity
+							onPress={handleAddSupplier}
+							className="px-4 py-2 bg-blue-200 shadow-md "
+						>
+							<Icon name="plus" size={20} color="black" />
+						</TouchableOpacity>
+					</View>
+				</View>
+				{!isShown ? (
+					<View className="">
+						<TouchableOpacity
+							onPress={handlePrint}
+							className="px-4 py-2 bg-blue-200 shadow-md"
+						>
+							<Text className="text-xl font-bold text-center">Print QRCode</Text>
+						</TouchableOpacity>
+					</View>
+				) : (
+					<View style={{ flex: 1 }}>
+						<Text className="text-xl font-bold text-center">qrData</Text>
+						<QRCode
+							value={qrData}
+							size={250} // Adjust size as needed (default: 300)
+							ecl="LOW" // Error Correction Level (options: 'LOW', 'MEDIUM', 'HIGH', 'QUARTILE', 'HIGHER')
+							bgColor="#4CAF50" // Background color (default: 'black')
+							fgColor="#ffffff" // Foreground color (default: 'white')
+						/>
+						{/* Optional: Add a button or input field to update qrData */}
+						<View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+							<TouchableOpacity onPress={() => setShown(false)}>
+								<Text
+									style={{ fontSize: 20, fontWeight: "bold", color: "#4CAF50" }}
+								>
+									Update QRCode
+								</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				)}
+			</SafeAreaView>
+		</TouchableWithoutFeedback>
+	);
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    padding: 10,
-  },
-  headTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-    marginTop: 10,
-  },
-  searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginRight: 10,
-  },
-  addButton: {
-    backgroundColor: "#2196F3",
-    padding: 10,
-    borderRadius: 5,
-  },
-  itemButton: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
-    marginBottom: 10,
-    padding: 10,
-  },
-  itemContainer: {
-    marginBottom: 5,
-  },
-  itemName: {
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  itemPhone: {
-    fontSize: 14,
-    color: "#666",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "#fff",
-  },
-  modalButtonContainer: {
-    marginTop: 20,
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
+	autocompleteContainer: {
+		flex: 1,
+		left: 0,
+		position: "absolute",
+		right: 0,
+		top: 0,
+		zIndex: 1,
+	},
 });
