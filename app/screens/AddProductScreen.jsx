@@ -71,17 +71,43 @@ export default function AddProductScreen({ route }) {
     }
   };
 
-  submitProductHandler = () => {
-    console.log(products);
-    // navigation.navigate("QRCodeScanner");
-  }
+  const saveOrderToDB = async () => {
+    try {
+      const order_number = route.params.order_details.order_number;
+      const order_detail = {
+        ...route.params.order_details,
+        products: products,
+      };
 
-  console.log('sijaelewa',route.params)
+      await AsyncStorage.setItem(order_number, JSON.stringify(order_detail));
+      navigation.navigate("home");
+    } catch (e) {
+      console.log(e);
+      Alert.alert("Error", "Failed to save order to database.");
+    }
+  };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100 p-2">
-      <View className="flex-1 bg-white rounded-lg shadow-md p-2">
-        <Text className="text-xl">{ route.params.order_details.supplier_name}</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#E5E7EB", padding: 10 }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#FFFFFF",
+          borderRadius: 10,
+          padding: 10,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            textAlign: "center",
+            color: "green",
+          }}
+        >
+          {route.params.order_details.supplier_name} :{" "}
+          {route.params.order_details.order_number}
+        </Text>
 
         <View
           style={{ borderWidth: 1, borderColor: "#D1D5DB", marginVertical: 10 }}
