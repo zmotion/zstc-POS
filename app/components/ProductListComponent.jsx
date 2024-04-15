@@ -1,65 +1,105 @@
-import { View, Text, FlatList, TextInput, Button, TouchableOpacity } from "react-native";
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { useState } from "react";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome";
 
-export default function ProductListComponent({ productList, is_weight = null }) {
-  
-  const [weight, setWeight] = useState(null)
+export default function ProductListComponent({
+  productList,
+  isWeight,
+  onWeightUpdate,
+  onProductRemove,
+}) {
+  const [weights, setWeights] = useState({});
 
-  const removeProductHandler = (index) => {
-    console.log('delete btn pressed! ');
-    // navigation.navigate("QRCodeScanner");
-  }
+  const handleWeightChange = (productId, newWeight) => {
+    setWeights({ ...weights, [productId]: newWeight });
+    if (onWeightUpdate) {
+      onWeightUpdate(productId, newWeight);
+    }
+  };
+
+  const removeProductHandler = (productId) => {
+    if (onProductRemove) {
+      onProductRemove(productId);
+    }
+  };
 
   return (
-    <View className="mt-8">
+    <View style={{ marginTop: 8 }}>
       {/* Table Header */}
-      <View className="flex-row justify-between border-b-2 border-gray-300 py-1">
-        <Text className="flex-1 font-bold text-lg">Product</Text>
-        <Text className="flex-1 font-bold text-lg">Unit</Text>
-        <Text className="flex-1 font-bold text-lg">Qty</Text>
-        {is_weight == true ? (
-          <View>
-            <Text className="flex-1 font-bold text-lg pl-6">Kg</Text>
-          </View>
-        ) : (
-          <View></View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          borderBottomWidth: 2,
+          borderBottomColor: "#ccc",
+          paddingVertical: 8,
+        }}
+      >
+        <Text style={{ flex: 1, fontWeight: "bold", fontSize: 16 }}>
+          Product
+        </Text>
+        <Text style={{ flex: 1, fontWeight: "bold", fontSize: 16 }}>Unit</Text>
+        <Text style={{ flex: 1, fontWeight: "bold", fontSize: 16 }}>Qty</Text>
+        {isWeight && (
+          <Text
+            style={{
+              flex: 1,
+              fontWeight: "bold",
+              fontSize: 16,
+              paddingLeft: 20,
+            }}
+          >
+            Kg
+          </Text>
         )}
       </View>
 
       {/* FlatList to render table rows */}
       <FlatList
-        className="mt-3"
+        style={{ marginTop: 8 }}
         data={productList}
-        renderItem={(itemData, index) => {
-          return (
-            <View className="flex-row justify-between border-b-2 border-gray-300 py-1">
-              <Text className="flex-1 text-lg mr-1">
-                {itemData.item.product}
-              </Text>
-              <Text className="flex-1 text-lg">
-                {itemData.item.unit }
-              </Text>
-              <Text className="flex-1 text-lg ">
-                {itemData.item.quantity}
-              </Text>
-              {is_weight == true ? (
-                <View>
-                  <TextInput className="text-lg " keyboardType="numeric" placeholder="Enter" />
-                </View>
-              ) : (
-                <View>
-                  <TouchableOpacity onPress={() => removeProductHandler(index)} className="bg-red-600 p-1">
-                    <Icon name="trash" size={20} color="white" />
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          );
-        }}
-        keyExtractor={(item, index) => {
-          item.id.toString();
-        }}
+        renderItem={({ item }) => (
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              borderBottomWidth: 2,
+              borderBottomColor: "#ccc",
+              paddingVertical: 8,
+            }}
+          >
+            <Text style={{ flex: 1, fontSize: 16 }}>{item.product}</Text>
+            <Text style={{ flex: 1, fontSize: 16 }}>{item.unit}</Text>
+            <Text style={{ flex: 1, fontSize: 16 }}>{item.quantity}</Text>
+            {isWeight ? (
+              <TextInput
+                style={{ flex: 1, fontSize: 16, paddingLeft: 20 }}
+                keyboardType="numeric"
+                placeholder="Enter"
+                value={item.weight}
+                onChangeText={(value) => handleWeightChange(item.id, value)}
+              />
+            ) : (
+              <TouchableOpacity
+                onPress={() => removeProductHandler(item.id)}
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Icon name="trash" size={20} color="red" />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+        keyExtractor={(item) => item.id.toString()}
       />
     </View>
   );

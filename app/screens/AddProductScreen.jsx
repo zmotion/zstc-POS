@@ -1,34 +1,29 @@
-import {
-  View,
-  Text,
-  SafeAreaView,
-  Button,
-  TextInput,
-  StyleSheet,
-  Alert,
-} from "react-native";
 import React, { useState } from "react";
+import { View, Text, SafeAreaView, Button, TextInput } from "react-native";
+import RNPickerSelect from "react-native-picker-select";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import ProductListComponent from "../components/ProductListComponent";
 import { useNavigation } from "@react-navigation/native";
-import RNPickerSelect from "react-native-picker-select";
 
 export default function AddProductScreen({ route }) {
   const navigation = useNavigation();
-  // List
+
   const product_data = [
-    { id: 1, label: "Karafuu kavu", value: "karafuu kavu" },
-    { id: 1, label: "karafuu mbichi", value: "karafuu mbichi" },
-    { id: 1, label: "karafuu kati na kati", value: "karafuu kati na kati" },
-  ];
-  const unit_data = [
-    { id: 1, label: "Bag", value: "Bag" },
-    { id: 1, label: "Piece", value: "Piece" },
+    { id: 1, label: "GRADE I", value: "GRADE I", amount: 18000 },
+    { id: 2, label: "GRADE II", value: "GRADE II", amount: 12000 },
+    { id: 3, label: "GRADE II", value: "GRADE III", amount: 7500 },
+    { id: 4, label: "MAKONYO", value: "MAKONYO", amount: 3500 },
   ];
 
-  // Variable
+  const unit_data = [
+    { id: 1, label: "Bag", value: "Bag" },
+    { id: 2, label: "Piece", value: "Piece" },
+  ];
+
   const [selected_product, setSelectedProduct] = useState(null);
-  const [selected_unit, setSelectedUnit] = useState(null);
-  const [quantity, setQuantity] = useState("");
+  const [selected_unit, setSelectedUnit] = useState("Bag");
+  const [quantity, setQuantity] = useState(1);
+  const [amount, setAmount] = useState(0);
   const [products, setProducts] = useState([]);
 
   const addProductHandler = () => {
@@ -36,92 +31,126 @@ export default function AddProductScreen({ route }) {
       alert("Please fill out all the fields.");
       return;
     }
-    //create new product
+
+    const selectedProductData = product_data.find(
+      (product) => product.label === selected_product
+    );
+
+    if (!selectedProductData) {
+      alert("Invalid product selected.");
+      return;
+    }
+
     const new_product = {
-      id: Math.random.toString(),
+      id: Math.random().toString(),
       product: selected_product,
       unit: selected_unit,
       quantity: parseInt(quantity, 10),
+      amount: parseFloat(selectedProductData.amount),
     };
 
-    //add new product to product list
+    console.log("collected", selected_product);
+
     setProducts([...products, new_product]);
-
-    // Show an alert to indicate successful addition
-    Alert.alert('Success', 'New product added successfully!');
-    
-
-    // Reset form fields after adding the product
-    // setSelectedProduct(null);
-    // setSelectedUnit(null);
-    // setQuantity("");
+    setQuantity("");
   };
 
-  submitProductHandler = () => {
-    console.log(products);
-    // navigation.navigate("QRCodeScanner");
-  }
+  const saveOrderToDB = async () => {
+    try {
+      const order_number = route.params.order_details.order_number;
+      const order_detail = {
+        ...route.params.order_details,
+        products: products,
+      };
 
-  console.log('sijaelewa',route.params)
+      await AsyncStorage.setItem(order_number, JSON.stringify(order_detail));
+      navigation.navigate("home");
+    } catch (e) {
+      console.log(e);
+      Alert.alert("Error", "Failed to save order to database.");
+    }
+  };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100 p-2">
-      <View className="flex-1 bg-white rounded-lg shadow-md p-2">
-        <Text className="text-xl">{ route.params.order_details.supplier_name}</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#E5E7EB", padding: 10 }}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#FFFFFF",
+          borderRadius: 10,
+          padding: 10,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            textAlign: "center",
+            color: "green",
+          }}
+        >
+          {route.params.order_details.supplier_name} :{" "}
+          {route.params.order_details.order_number}
+        </Text>
 
-        <View className="border border-gray-300 my-2"></View>
+        <View
+          style={{ borderWidth: 1, borderColor: "#D1D5DB", marginVertical: 10 }}
+        />
 
         <View>
-          <Text className="text-xl font-bold">Product :</Text>
+          <Text style={{ fontSize: 18, fontWeight: "bold" }}>Product :</Text>
           <RNPickerSelect
             placeholder={{ label: "Select", value: null }}
             onValueChange={(value) => setSelectedProduct(value)}
             items={product_data}
           />
 
-          <View className="flex-row">
-            <View className="flex-1">
-              <Text className="text-xl font-bold">Unit :</Text>
+          <View style={{ flexDirection: "row" }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 18, fontWeight: "bold" }}>Unit :</Text>
               <RNPickerSelect
                 placeholder={{ label: "Select", value: null }}
                 onValueChange={(value) => setSelectedUnit(value)}
                 items={unit_data}
               />
             </View>
-            <View className="flex-1">
-              <Text className="text-xl font-bold">Quantity :</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                Quantity :
+              </Text>
               <TextInput
                 value={quantity}
                 onChangeText={(text) => setQuantity(text)}
                 keyboardType="numeric"
                 placeholder="Enter number"
-                className="py-2 border border-gray-300 px-4 mb-2"
+                style={{
+                  paddingVertical: 8,
+                  paddingHorizontal: 12,
+                  borderWidth: 1,
+                  borderColor: "#D1D5DB",
+                  marginBottom: 10,
+                }}
               />
             </View>
           </View>
 
-          <Button
-            title="Add"
-            className="bg-blue-300 mx-4"
-            onPress={ addProductHandler }
-          />
+          <Button title="Add" onPress={addProductHandler} />
         </View>
 
-        { products.length > 0 ? (
+        {products.length > 0 ? (
           <View>
-            <ProductListComponent productList={products} />
-            
-            <View className="my-2">
-              <Button
-                title="Submit"
-                color="green"
-                onPress={submitProductHandler}
-              />
+            <ProductListComponent productList={products} isWeight={false} />
+            <View style={{ marginVertical: 10 }}>
+              <Button title="Submit" color="green" onPress={saveOrderToDB} />
             </View>
           </View>
         ) : (
-          <View className="flex-1 justify-center items-center">
-            <Text className="text-red-700 text-lg">No products added yet</Text>
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Text style={{ fontSize: 18, color: "red" }}>
+              No products added yet
+            </Text>
           </View>
         )}
       </View>

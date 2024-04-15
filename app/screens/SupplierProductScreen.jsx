@@ -1,61 +1,91 @@
+import React, { useState } from "react";
 import { View, Text, SafeAreaView, Button } from "react-native";
-import { useState } from "react";
 import ProductListComponent from "../components/ProductListComponent";
 import { useNavigation } from "@react-navigation/native";
 import HeaderComponent from "../components/HeaderComponent";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function SupplierProductScreen() {
+export default function SupplierProductScreen({ route }) {
+ 
   const navigation = useNavigation();
-  const [orders, setOrder] = useState([
-    {
-      order_id: "u1c1" + Math.random().toString(),
-      supplier_name: "Abdul-razak Mohd Abrah-man",
-      products: [
-        { id: 1, product: "karafuu kavu", unit: "bag", quantity: 3 },
-        { id: 2, product: "karafuu mbichi", unit: "bag", quantity: 5 },
-        { id: 3, product: "karafuu grade 3", unit: "bag", quantity: 7 },
-      ],
-    },
-  ]);
-  const [products, setProducts] = useState([]);
+  const order = route.params.order_details;
+  const [products, setProducts] = useState(
+    route.params.order_details.products || []
+  );
 
-  function submitProductHandler() {
-    console.log("submit button pressed");
+  const handleWeightUpdate = (productId, newWeight) => {
+    const updatedProducts = products.map((product) =>
+      product.id === productId ? { ...product, weight: newWeight } : product
+    );
+    setProducts(updatedProducts);
+  };
 
-    // navigation.navigate("supplierProductPreview");
-  }
+  const submitProductHandler = async () => {
+    
+    try {
+      const order_number = route.params.order_details.order_number;
+      const order_detail = {
+        ...route.params.order_details,
+        products: products,
+      };
+
+      await AsyncStorage.setItem(order_number, JSON.stringify(order_detail));
+      navigation.navigate("home");
+    } catch (e) {
+      console.log(e);
+      Alert.alert("Error", "Failed to save order to database.");
+    }
+
+  };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100 p-1">
-      <HeaderComponent title="Supplier Product" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#f0f0f0", padding: 8 }}>
+      <HeaderComponent title="Product Weighting" />
 
-      <View className="flex-1 bg-white rounded-lg shadow-md p-2">
-        {orders.map((order, index) => (
-          <View>
-            <Text className="text-lg font-bold">Name:</Text>
-            <Text className="text-lg">{order.supplier_name}</Text>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#fff",
+          borderRadius: 8,
+          shadowColor: "#000",
+          shadowOpacity: 0.2,
+          shadowRadius: 4,
+          elevation: 5,
+          margin: 8,
+          padding: 12,
+        }}
+      >
+        <Text style={{ fontSize: 18, fontWeight: "bold" }}>Name:</Text>
+        <Text style={{ fontSize: 16 }}>{order.supplier_name}</Text>
 
-            <View className="flex-row">
-              <Text className="flex-1/2 text-lg font-bold">Order Number :</Text>
-              <Text className="flex-1 text-lg ml-2">{order.order_id}</Text>
-            </View>
+        <View
+          style={{ flexDirection: "row", alignItems: "center", marginTop: 8 }}
+        >
+          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+            Order Number:
+          </Text>
+          <Text style={{ fontSize: 16, marginLeft: 8 }}>
+            {order.order_number}
+          </Text>
+        </View>
 
-            <View className="border border-gray-300 my-2"></View>
+        <View
+          style={{
+            borderBottomWidth: 1,
+            borderBottomColor: "#ccc",
+            marginVertical: 8,
+          }}
+        />
 
-            <ProductListComponent
-              productList={order.products}
-              is_weight={true}
-            />
+        <ProductListComponent
+          productList={products}
+          isWeight={true}
+          onWeightUpdate={handleWeightUpdate}
+        />
 
-            <View className="mt-3">
-              <Button
-                title="Submit"
-                color="green"
-                onPress={submitProductHandler}
-              />
-            </View>
-          </View>
-        ))}
+        <View style={{ marginTop: 20 }}>
+          <Button title="Submit" color="green" onPress={submitProductHandler} />
+        </View>
       </View>
     </SafeAreaView>
   );
