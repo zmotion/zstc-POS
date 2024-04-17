@@ -1,6 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, SafeAreaView, Button, TextInput } from "react-native";
-import RNPickerSelect from "react-native-picker-select";
+import {
+  View,
+  Text,
+  SafeAreaView,
+  Button,
+  TextInput,
+  Alert,
+} from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ProductListComponent from "../components/ProductListComponent";
 import { useNavigation } from "@react-navigation/native";
@@ -11,7 +18,7 @@ export default function AddProductScreen({ route }) {
   const product_data = [
     { id: 1, label: "GRADE I", value: "GRADE I", amount: 18000 },
     { id: 2, label: "GRADE II", value: "GRADE II", amount: 12000 },
-    { id: 3, label: "GRADE II", value: "GRADE III", amount: 7500 },
+    { id: 3, label: "GRADE III", value: "GRADE III", amount: 7500 },
     { id: 4, label: "MAKONYO", value: "MAKONYO", amount: 3500 },
   ];
 
@@ -22,13 +29,12 @@ export default function AddProductScreen({ route }) {
 
   const [selected_product, setSelectedProduct] = useState(null);
   const [selected_unit, setSelectedUnit] = useState("Bag");
-  const [quantity, setQuantity] = useState(1);
-  const [amount, setAmount] = useState(0);
+  const [quantity, setQuantity] = useState("1");
   const [products, setProducts] = useState([]);
 
   const addProductHandler = () => {
     if (!quantity || !selected_product || !selected_unit) {
-      alert("Please fill out all the fields.");
+      Alert.alert("Error", "Please fill out all the fields.");
       return;
     }
 
@@ -37,7 +43,7 @@ export default function AddProductScreen({ route }) {
     );
 
     if (!selectedProductData) {
-      alert("Invalid product selected.");
+      Alert.alert("Error", "Invalid product selected.");
       return;
     }
 
@@ -49,10 +55,8 @@ export default function AddProductScreen({ route }) {
       amount: parseFloat(selectedProductData.amount),
     };
 
-    console.log("collected", selected_product);
-
     setProducts([...products, new_product]);
-    setQuantity("");
+    setQuantity("1");
   };
 
   const saveOrderToDB = async () => {
@@ -99,20 +103,35 @@ export default function AddProductScreen({ route }) {
 
         <View>
           <Text style={{ fontSize: 18, fontWeight: "bold" }}>Product :</Text>
-          <RNPickerSelect
-            placeholder={{ label: "Select", value: null }}
+          <Picker
+            selectedValue={selected_product}
             onValueChange={(value) => setSelectedProduct(value)}
-            items={product_data}
-          />
+          >
+            <Picker.Item label="Select" value={null} />
+            {product_data.map((product) => (
+              <Picker.Item
+                key={product.id}
+                label={product.label}
+                value={product.value}
+              />
+            ))}
+          </Picker>
 
           <View style={{ flexDirection: "row" }}>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 18, fontWeight: "bold" }}>Unit :</Text>
-              <RNPickerSelect
-                placeholder={{ label: "Select", value: null }}
+              <Picker
+                selectedValue={selected_unit}
                 onValueChange={(value) => setSelectedUnit(value)}
-                items={unit_data}
-              />
+              >
+                {unit_data.map((unit) => (
+                  <Picker.Item
+                    key={unit.id}
+                    label={unit.label}
+                    value={unit.value}
+                  />
+                ))}
+              </Picker>
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 18, fontWeight: "bold" }}>

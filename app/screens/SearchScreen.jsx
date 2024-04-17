@@ -14,6 +14,7 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome";
 import QRCode from "react-native-qrcode-svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import SunmiPrinter from "@heasy/react-native-sunmi-printer";
 
 export default function SearchScreen() {
   const [input, setInput] = useState("");
@@ -56,6 +57,14 @@ export default function SearchScreen() {
   const handlePrint = () => {
     console.log("Print button pressed");
     // Add your print logic here
+    SunmiPrinter.printerText("- ZSTC -");
+    SunmiPrinter.lineWrap(2);
+    SunmiPrinter.printerText("Farmer Name: " + order_title);
+    SunmiPrinter.lineWrap(2);
+    SunmiPrinter.printerText("Order No: " + qrData);
+    SunmiPrinter.lineWrap(2);
+    SunmiPrinter.printQRCode(qrData, 16, 1);
+    SunmiPrinter.lineWrap(5);
   };
 
   const onChangeText = (text) => {
