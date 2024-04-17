@@ -1,14 +1,26 @@
 import {Button, Text, TextInput, View } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
+import { user_api } from '../api/user_api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen() {
     const navigation = useNavigation();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     const handleLogin = () => {
-        navigation.navigate('searchSupplier');
-        
-        console.log('Login button pressed');
+        user_api({
+          email: email.toLowerCase(),
+          password: password,
+        }).then((res) => {
+          if (res.status === 200) {
+            AsyncStorage.setItem('token', res.data.token);
+            navigation.navigate('home');
+          }
+        }).catch((error) => {
+          console.log(error);
+        });
     };
 
 
@@ -20,12 +32,16 @@ export default function LoginScreen() {
           className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
           placeholder="Email"
           placeholderTextColor="#999"
+          value={email}
+          onChangeText={setEmail}
         />
         <TextInput
           className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
           placeholder="Password"
           placeholderTextColor="#999"
           secureTextEntry
+          value={password}
+          onChangeText={setPassword}
         />
         <Button title="Login" onPress={handleLogin} />
       </View>

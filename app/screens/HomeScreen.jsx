@@ -1,4 +1,4 @@
-import React from "react";
+import {useEffect} from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const data = [
   {
@@ -43,6 +44,22 @@ const data = [
 
 function HomeScreen() {
   const navigation = useNavigation();
+
+  // useEffect(() => {
+  //   setInterval(() => {
+  //     checkCredentials();
+  //   }, 2000);
+  // })
+
+  // const checkCredentials = async () => {
+  //   const data_token  = await AsyncStorage.getItem('token');
+  //   if (!data_token) {
+  //     navigation.navigate('login');
+  //   } else {
+  //     navigation.navigate('home');
+  //   }
+  // };
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={[styles.buttonContainer, { backgroundColor: item.color }]}

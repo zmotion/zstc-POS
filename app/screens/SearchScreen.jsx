@@ -14,6 +14,7 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome";
 import QRCode from "react-native-qrcode-svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { farmers } from "../api/farmers_api";
 
 export default function SearchScreen() {
   const [input, setInput] = useState("");
@@ -22,11 +23,11 @@ export default function SearchScreen() {
   const [qrData, setQrData] = useState("");
   const [order_title, setOrderTitle] = useState([]);
 
-  const sample_data = [
-    { id: 1, name: "Muhammad Ali", phone: "+255771234567" },
-    { id: 2, name: "Fatima Hassan", phone: "+255771234568" },
-    { id: 3, name: "Ibrahim Abdullah", phone: "+255771234569" },
-  ];
+  // const sample_data = [
+  //   { id: 1, name: "Muhammad Ali", phone: "+255771234567" },
+  //   { id: 2, name: "Fatima Hassan", phone: "+255771234568" },
+  //   { id: 3, name: "Ibrahim Abdullah", phone: "+255771234569" },
+  // ];
 
   const handleAddSupplier = () => {
     console.log("Add Supplier button pressed");
@@ -44,7 +45,7 @@ export default function SearchScreen() {
       const jsonValue = JSON.stringify({
         supplier_id: value.id,
         supplier_name: value.name,
-        supplier_phone: value.phone,
+        supplier_phone: value.phone_number,
       });
 
       await AsyncStorage.setItem(order_number, jsonValue);
@@ -58,23 +59,32 @@ export default function SearchScreen() {
     // Add your print logic here
   };
 
-  const onChangeText = (text) => {
+  const onChangeText = async (text) => {
     setInput(text);
-    // Simulating a fast search by filtering local data
-    if (text.length > 0) {
-      const filteredData = sample_data.filter((item) =>
-        item.name.toLowerCase().includes(text.toLowerCase())
-      );
-      setData(filteredData);
-    } else {
-      setData([]);
-    }
+    //fetch the farmers from the api
+    let token = await AsyncStorage.getItem('token');
+    farmers(token).then((res) => {
+        console.log(res.data);
+        sample_data = res.data;
+        // Simulating a fast search by filtering local data
+        if (text.length > 0) {
+          const filteredData = sample_data.filter((item) =>
+            item.name.toLowerCase().includes(text.toLowerCase())
+          );
+          setData(filteredData);
+        } else {
+          setData([]);
+        }
+      })
+      .catch((error) => {
+        return error.message;
+      });
   };
 
   const getItemText = (item) => (
     <View style={styles.itemContainer}>
       <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemPhone}>{item.phone}</Text>
+      <Text style={styles.itemPhone}>{item.phone_number}</Text>
     </View>
   );
 

@@ -71,22 +71,6 @@ export default function AddProductScreen({ route }) {
     }
   };
 
-  const saveOrderToDB = async () => {
-    try {
-      const order_number = route.params.order_details.order_number;
-      const order_detail = {
-        ...route.params.order_details,
-        products: products,
-      };
-
-      await AsyncStorage.setItem(order_number, JSON.stringify(order_detail));
-      navigation.navigate("home");
-    } catch (e) {
-      console.log(e);
-      Alert.alert("Error", "Failed to save order to database.");
-    }
-  };
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#E5E7EB", padding: 10 }}>
       <View
