@@ -16,6 +16,8 @@ export default function LoginScreen() {
         }).then((res) => {
           if (res.status === 200) {
             AsyncStorage.setItem('token', res.data.token);
+            AsyncStorage.setItem('role', res.data.role);
+            AsyncStorage.setItem('user_id', JSON.stringify(res.data.user_id));
             navigation.navigate('home');
           }
         }).catch((error) => {

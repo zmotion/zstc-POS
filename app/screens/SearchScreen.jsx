@@ -14,57 +14,23 @@ import {
 import Icon from "react-native-vector-icons/FontAwesome";
 import QRCode from "react-native-qrcode-svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { farmers } from "../api/farmers_api";
+import { getFarmers, postFarmer } from "../api/farmers_api";
+import { useNavigation } from "@react-navigation/native";
 
 export default function SearchScreen() {
+  const navigation = useNavigation();
   const [input, setInput] = useState("");
   const [data, setData] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [qrData, setQrData] = useState("");
   const [order_title, setOrderTitle] = useState([]);
 
-  // const sample_data = [
-  //   { id: 1, name: "Muhammad Ali", phone: "+255771234567" },
-  //   { id: 2, name: "Fatima Hassan", phone: "+255771234568" },
-  //   { id: 3, name: "Ibrahim Abdullah", phone: "+255771234569" },
-  // ];
-
-  const handleAddSupplier = () => {
-    console.log("Add Supplier button pressed");
-    // Add your navigation logic here
-  };
-
-  const createOrder = async (value) => {
-    const order_number = "2015112910";
-    setQrData(order_number);
-    setData([]);
-    setModalVisible(true);
-    setOrderTitle(value.name);
-
-    try {
-      const jsonValue = JSON.stringify({
-        supplier_id: value.id,
-        supplier_name: value.name,
-        supplier_phone: value.phone_number,
-      });
-
-      await AsyncStorage.setItem(order_number, jsonValue);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const handlePrint = () => {
-    console.log("Print button pressed");
-    // Add your print logic here
-  };
-
-  const onChangeText = async (text) => {
+  const handleTextInputValue = async (text) => {
     setInput(text);
     //fetch the farmers from the api
-    let token = await AsyncStorage.getItem('token');
-    farmers(token).then((res) => {
-        console.log(res.data);
+    let token = await AsyncStorage.getItem("token");
+    getFarmers()
+      .then((res) => {
         sample_data = res.data;
         // Simulating a fast search by filtering local data
         if (text.length > 0) {
@@ -81,6 +47,48 @@ export default function SearchScreen() {
       });
   };
 
+  const createOrder = async (value) => {
+    try {
+      const farmer_values = {
+        supplier_id: value.id,
+        supplier_name: value.name,
+        supplier_phone: value.phone_number,
+      };
+
+      // store data in server
+      postFarmer(farmer_values).then(async (res) => {
+        console.log("Initiate - ", res);
+        if (res.status === 200) {
+          const order_number = res.data.order_number;
+          console.log("Order number - ", order_number);
+          farmer_values.order_number = order_number;
+          console.log(farmer_values);
+          setQrData(order_number);
+          setData([]);
+          setModalVisible(true);
+          setOrderTitle(value.name);
+          // store data in local storage
+          await AsyncStorage.setItem(
+            order_number,
+            JSON.stringify(farmer_values)
+          );
+        }
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const handlePrint = () => {
+    console.log("Print button pressed");
+    // Add your print logic here
+  };
+
+  const handleAddSupplier = () => {
+    console.log("Add Supplier button pressed");
+    // Add your navigation logic here
+  };
+
   const getItemText = (item) => (
     <View style={styles.itemContainer}>
       <Text style={styles.itemName}>{item.name}</Text>
@@ -94,7 +102,7 @@ export default function SearchScreen() {
 
       <View style={styles.searchContainer}>
         <TextInput
-          onChangeText={onChangeText}
+          onChangeText={handleTextInputValue}
           value={input}
           style={styles.input}
           placeholder="Enter The Supplier Name"
