@@ -119,12 +119,12 @@ export default function AddProductScreen({ route }) {
                 Quantity :
               </Text>
               <TextInput
-                value={quantity}
+                value={quantity.toString()}
                 onChangeText={(text) => setQuantity(text)}
                 keyboardType="numeric"
                 placeholder="Enter number"
                 style={{
-                  paddingVertical: 8,
+                  paddingVertical: 8,                               
                   paddingHorizontal: 12,
                   borderWidth: 1,
                   borderColor: "#D1D5DB",
