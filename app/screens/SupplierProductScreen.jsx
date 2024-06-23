@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, SafeAreaView, Button } from "react-native";
-import ProductListComponent from "../components/ProductListComponent";
+import ProductListComponent from "./ProductListComponent";
 import { useNavigation } from "@react-navigation/native";
 import HeaderComponent from "../components/HeaderComponent";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SupplierProductScreen({ route }) {
- 
   const navigation = useNavigation();
   const order = route.params.order_details;
   const [products, setProducts] = useState(
@@ -21,7 +20,6 @@ export default function SupplierProductScreen({ route }) {
   };
 
   const submitProductHandler = async () => {
-    
     try {
       const order_number = route.params.order_details.order_number;
       const order_detail = {
@@ -35,13 +33,10 @@ export default function SupplierProductScreen({ route }) {
       console.log(e);
       Alert.alert("Error", "Failed to save order to database.");
     }
-
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f0f0f0", padding: 8 }}>
-      <HeaderComponent title="Product Weighting" />
-
       <View
         style={{
           flex: 1,

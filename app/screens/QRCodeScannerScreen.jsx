@@ -32,14 +32,14 @@ export default function QRCodeScannerScreen({ route }) {
     if (scanned && orderData) {
       console.log("order data", orderData);
 
-      if (route.params.next === "Checker") {
+      if (route.params.next === "Grading") {
         navigation.navigate("addProduct", { order_details: orderData });
       }
-      if (route.params.next == "Weighter") {
+      if (route.params.next == "Weighting") {
         navigation.navigate("supplierProduct", { order_details: orderData });
       }
 
-      if (route.params.next == "Accountant") {
+      if (route.params.next == "Cashier") {
         navigation.navigate("supplierProductPreview", {
           order_details: orderData,
         });

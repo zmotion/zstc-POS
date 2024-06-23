@@ -13,36 +13,45 @@ import { useNavigation } from "@react-navigation/native";
 const data = [
   {
     id: "1",
-    title: "Cashier",
-    iconName: "dollar",
+    title: "Registrar",
+    iconName: "file-text",
     screen: "searchSupplier",
     color: "#FF6347",
   },
   {
     id: "2",
-    title: "Checker",
-    iconName: "check",
+    title: "Grading",
+    iconName: "check-circle",
     screen: "QRCodeScanner",
     color: "#6A5ACD",
   },
   {
     id: "3",
-    title: "Weighter",
+    title: "Weighting",
     iconName: "balance-scale",
     screen: "QRCodeScanner",
     color: "#FFA500",
   },
   {
     id: "4",
-    title: "Accountant",
+    title: "Cashier",
     iconName: "money",
     screen: "QRCodeScanner",
     color: "#32CD32",
   },
 ];
 
-function HomeScreen() {
+const Header = () => (
+  <View style={styles.headerContainer}>
+    <Text style={styles.headMain}>ZSTC</Text>
+    <Text style={styles.headTitle}>Smart Terminal</Text>
+    <Text style={styles.station}>CHAKE CHAKE STATION</Text>
+  </View>
+);
+
+const HomeScreen = () => {
   const navigation = useNavigation();
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={[styles.buttonContainer, { backgroundColor: item.color }]}
@@ -57,7 +66,7 @@ function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.headTitle}>Cloves Buying Terminal</Text>
+      <Header />
       <FlatList
         data={data}
         numColumns={2}
@@ -67,20 +76,36 @@ function HomeScreen() {
       />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    padding: 10,
+  },
+  headerContainer: {
+    padding: 20,
+    backgroundColor: "#F2F2F2",
+    alignItems: "center",
   },
   headTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
-    marginTop: 40,
     textAlign: "center",
+    marginBottom: 10,
+  },
+  station: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    color: "#D05427",
+    marginBottom: 20,
+  },
+  headMain: {
+    fontSize: 44,
+    fontWeight: "bold",
+    color: "#024B4E",
+    marginTop: 20,
   },
   flatListContainer: {
     paddingHorizontal: 10,
@@ -94,12 +119,13 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: 20,
     borderRadius: 12,
+    elevation: 5,
   },
   buttonText: {
     marginTop: 10,
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    color: "black",
+    color: "white",
   },
 });
 

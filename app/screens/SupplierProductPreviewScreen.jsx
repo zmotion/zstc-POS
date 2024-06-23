@@ -41,9 +41,7 @@ export default function OrderPreviewScreen({ route }) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#f0f0f0" }}>
-      <HeaderComponent title="Order Preview" />
-
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#f0f0f0", margin: 10 }}>
       <View
         style={{
           flex: 1,

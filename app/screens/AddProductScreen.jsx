@@ -6,11 +6,12 @@ import {
   Button,
   TextInput,
   Alert,
+  FlatList,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import ProductListComponent from "../components/ProductListComponent";
 import { useNavigation } from "@react-navigation/native";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function AddProductScreen({ route }) {
   const navigation = useNavigation();
@@ -24,11 +25,11 @@ export default function AddProductScreen({ route }) {
 
   const unit_data = [
     { id: 1, label: "Bag", value: "Bag" },
-    { id: 2, label: "Piece", value: "Piece" },
+    { id: 2, label: "Sack", value: "Sack" },
   ];
 
   const [selected_product, setSelectedProduct] = useState(null);
-  const [selected_unit, setSelectedUnit] = useState("Bag");
+  const [selected_unit, setSelectedUnit] = useState("Sack");
   const [quantity, setQuantity] = useState("1");
   const [products, setProducts] = useState([]);
 
@@ -47,16 +48,37 @@ export default function AddProductScreen({ route }) {
       return;
     }
 
-    const new_product = {
-      id: Math.random().toString(),
-      product: selected_product,
-      unit: selected_unit,
-      quantity: parseInt(quantity, 10),
-      amount: parseFloat(selectedProductData.amount),
-    };
+    const existingProduct = products.find(
+      (product) =>
+        product.product === selected_product && product.unit === selected_unit
+    );
 
-    setProducts([...products, new_product]);
+    if (existingProduct) {
+      const updatedProducts = products.map((product) =>
+        product.product === selected_product && product.unit === selected_unit
+          ? { ...product, quantity: product.quantity + parseInt(quantity, 10) }
+          : product
+      );
+      setProducts(updatedProducts);
+    } else {
+      const new_product = {
+        id: Math.random().toString(),
+        product: selected_product,
+        unit: selected_unit,
+        quantity: parseInt(quantity, 10),
+        amount: parseFloat(selectedProductData.amount),
+      };
+      setProducts([...products, new_product]);
+    }
+
     setQuantity("1");
+  };
+
+  const removeProductHandler = (productId) => {
+    const updatedProducts = products.filter(
+      (product) => product.id !== productId
+    );
+    setProducts(updatedProducts);
   };
 
   const saveOrderToDB = async () => {
@@ -75,6 +97,31 @@ export default function AddProductScreen({ route }) {
     }
   };
 
+  const renderProductItem = ({ item }) => (
+    <View
+      style={{
+        flexDirection: "row",
+        paddingVertical: 5,
+        backgroundColor: "#95C9C4",
+        marginTop: 4,
+        padding: 10,
+      }}
+    >
+      <Text style={{ flex: 1, fontSize: 18, fontWeight: "600" }}>
+        {item.product} - {item.unit}
+      </Text>
+      <Text style={{ fontSize: 16, fontWeight: "600" }}>
+        Qty: {item.quantity}
+      </Text>
+      <Icon
+        name="remove-circle"
+        size={24}
+        color="red"
+        onPress={() => removeProductHandler(item.id)}
+      />
+    </View>
+  );
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#E5E7EB", padding: 10 }}>
       <View
@@ -87,10 +134,11 @@ export default function AddProductScreen({ route }) {
       >
         <Text
           style={{
-            fontSize: 20,
+            fontSize: 24,
             fontWeight: "bold",
             textAlign: "center",
             color: "green",
+            marginBottom: 10,
           }}
         >
           {route.params.order_details.supplier_name} :{" "}
@@ -101,11 +149,12 @@ export default function AddProductScreen({ route }) {
           style={{ borderWidth: 1, borderColor: "#D1D5DB", marginVertical: 10 }}
         />
 
-        <View>
+        <View style={{ marginVertical: 10 }}>
           <Text style={{ fontSize: 18, fontWeight: "bold" }}>Product :</Text>
           <Picker
             selectedValue={selected_product}
             onValueChange={(value) => setSelectedProduct(value)}
+            style={{ fontSize: 18 }}
           >
             <Picker.Item label="Select" value={null} />
             {product_data.map((product) => (
@@ -116,60 +165,67 @@ export default function AddProductScreen({ route }) {
               />
             ))}
           </Picker>
-
-          <View style={{ flexDirection: "row" }}>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 18, fontWeight: "bold" }}>Unit :</Text>
-              <Picker
-                selectedValue={selected_unit}
-                onValueChange={(value) => setSelectedUnit(value)}
-              >
-                {unit_data.map((unit) => (
-                  <Picker.Item
-                    key={unit.id}
-                    label={unit.label}
-                    value={unit.value}
-                  />
-                ))}
-              </Picker>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 18, fontWeight: "bold" }}>
-                Quantity :
-              </Text>
-              <TextInput
-                value={quantity}
-                onChangeText={(text) => setQuantity(text)}
-                keyboardType="numeric"
-                placeholder="Enter number"
-                style={{
-                  paddingVertical: 8,
-                  paddingHorizontal: 12,
-                  borderWidth: 1,
-                  borderColor: "#D1D5DB",
-                  marginBottom: 10,
-                }}
-              />
-            </View>
-          </View>
-
-          <Button title="Add" onPress={addProductHandler} />
         </View>
 
-        {products.length > 0 ? (
-          <View>
-            <ProductListComponent productList={products} isWeight={false} />
-            <View style={{ marginVertical: 10 }}>
-              <Button title="Submit" color="green" onPress={saveOrderToDB} />
-            </View>
+        <View style={{ flexDirection: "row", marginBottom: 10 }}>
+          <View style={{ flex: 1, marginRight: 10 }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold" }}>Unit :</Text>
+            <Picker
+              selectedValue={selected_unit}
+              onValueChange={(value) => setSelectedUnit(value)}
+              style={{ fontSize: 18 }}
+            >
+              {unit_data.map((unit) => (
+                <Picker.Item
+                  key={unit.id}
+                  label={unit.label}
+                  value={unit.value}
+                />
+              ))}
+            </Picker>
           </View>
-        ) : (
-          <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          >
-            <Text style={{ fontSize: 18, color: "red" }}>
-              No products added yet
-            </Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold" }}>Quantity :</Text>
+            <TextInput
+              value={quantity}
+              onChangeText={(text) => setQuantity(text)}
+              keyboardType="numeric"
+              placeholder="Enter quantity"
+              style={{
+                height: 40,
+                borderColor: "#D1D5DB",
+                borderWidth: 1,
+                paddingHorizontal: 10,
+                fontSize: 18,
+                fontWeight: "bold",
+              }}
+            />
+          </View>
+        </View>
+
+        <Button
+          title="Add Product"
+          onPress={addProductHandler}
+          color="green"
+          style={{ marginBottom: 10 }}
+        />
+
+        <View style={{ flex: 1, marginBottom: 10 }}>
+          <FlatList
+            data={products}
+            renderItem={renderProductItem}
+            keyExtractor={(item) => item.id}
+          />
+        </View>
+
+        {products.length > 0 && (
+          <View style={{ width: "100%", alignItems: "center", marginTop: 10 }}>
+            <Button
+              title="Submit Order"
+              onPress={saveOrderToDB}
+              color="green"
+              style={{ width: "50%", height: 50 }}
+            />
           </View>
         )}
       </View>
