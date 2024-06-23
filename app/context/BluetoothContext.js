@@ -27,12 +27,15 @@ export const BluetoothProvider = ({ children }) => {
     BleManager.start({ showAlert: false });
 
     const handleDiscoverPeripheral = (peripheral) => {
-      setDevices((prevDevices) => {
-        if (!prevDevices.find((dev) => dev.id === peripheral.id)) {
-          return [...prevDevices, peripheral];
+        if (peripheral.name) {
+          setDevices((prevDevices) => {
+            if (!prevDevices.find((dev) => dev.id === peripheral.id)) {
+              return [...prevDevices, peripheral];
+            }
+            return prevDevices;
+          });
         }
-        return prevDevices;
-      });
+     
     };
 
     const handleStopScan = () => {

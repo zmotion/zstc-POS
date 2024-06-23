@@ -17,19 +17,25 @@ export default function AddProductScreen({ route }) {
   const navigation = useNavigation();
 
   const product_data = [
-    { id: 1, label: "GRADE I", value: "GRADE I", amount: 18000 },
-    { id: 2, label: "GRADE II", value: "GRADE II", amount: 12000 },
-    { id: 3, label: "GRADE III", value: "GRADE III", amount: 7500 },
-    { id: 4, label: "MAKONYO", value: "MAKONYO", amount: 3500 },
+    {
+      id: 1,
+      label: "DARAJA LA KWANZA",
+      value: "DARAJA LA KWANZA",
+      amount: 15000,
+    },
+    { id: 2, label: "DARAJA LA PILI", value: "DARAJA LA PILI", amount: 13500 },
+    { id: 3, label: "DARAJA LA TATU", value: "DARAJA LA TATU", amount: 12500 },
+    { id: 4, label: "MPETA", value: "MPETA", amount: 7000 },
+    { id: 5, label: "MAKONYO", value: "MAKONYO", amount: 3500 },
   ];
 
   const unit_data = [
-    { id: 1, label: "Bag", value: "Bag" },
-    { id: 2, label: "Sack", value: "Sack" },
+    { id: 1, label: "Kapu", value: "Kapu" },
+    { id: 2, label: "Gunia", value: "Gunia" },
   ];
 
   const [selected_product, setSelectedProduct] = useState(null);
-  const [selected_unit, setSelectedUnit] = useState("Sack");
+  const [selected_unit, setSelectedUnit] = useState("Gunia");
   const [quantity, setQuantity] = useState("1");
   const [products, setProducts] = useState([]);
 

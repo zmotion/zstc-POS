@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   FlatList,
@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
-  Keyboard,
   Modal,
+  Keyboard,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import QRCode from "react-native-qrcode-svg";
@@ -19,28 +19,88 @@ import SunmiPrinter, { AlignValue } from "@heasy/react-native-sunmi-printer";
 export default function SearchScreen() {
   const [input, setInput] = useState("");
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isQRCodeModalVisible, setQRCodeModalVisible] = useState(false);
   const [qrData, setQrData] = useState("");
-  const [order_title, setOrderTitle] = useState([]);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState("Tigo Pesa");
+  const [orderTitle, setOrderTitle] = useState([]);
+  const [newFarmer, setNewFarmer] = useState({ nin: "", name: "", phone: "" });
 
-  const sample_data = [
+  const sampleData = [
     { id: 1, name: "Muhammad Ali", phone: "0771234567" },
     { id: 2, name: "Fatima Hassan", phone: "0771234568" },
     { id: 3, name: "Ibrahim Abdullah", phone: "0771234569" },
-    { id: 3, name: "Said Ali", phone: "0771234569" },
+    { id: 4, name: "Said Ali", phone: "0771234570" },
   ];
 
-  const handleAddSupplier = () => {
-    console.log("Add Supplier button pressed");
-    // Add your navigation logic here
+  useEffect(() => {
+    const storeDefaultFarmers = async () => {
+      try {
+        const storedFarmers = await AsyncStorage.getItem("farmers");
+        if (!storedFarmers) {
+          await AsyncStorage.setItem("farmers", JSON.stringify(sampleData));
+          setData(sampleData);
+          setFilteredData(sampleData);
+        } else {
+          const farmers = JSON.parse(storedFarmers);
+          setData(farmers);
+          setFilteredData(farmers);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    storeDefaultFarmers();
+  }, []);
+
+  const handleAddFarmer = () => {
+    setModalVisible(true);
+  };
+
+  const handleSaveFarmer = async () => {
+    const newId = data.length ? data[data.length - 1].id + 1 : 1;
+    const updatedFarmers = [
+      ...data,
+      { id: newId, name: newFarmer.name, phone: newFarmer.phone },
+    ];
+    try {
+      await AsyncStorage.setItem("farmers", JSON.stringify(updatedFarmers));
+      setData(updatedFarmers);
+      setFilteredData(updatedFarmers);
+    } catch (error) {
+      console.log(error);
+    }
+    setModalVisible(false);
+    setNewFarmer({ nin: "", name: "", phone: "" });
+  };
+
+  const fetchFarmerName = async (nin) => {
+    try {
+      const response = await fetch("https://api.example.com/farmer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ nin }),
+      });
+      const result = await response.json();
+      if (result.name) {
+        setNewFarmer({ ...newFarmer, name: result.name });
+      } else {
+        alert("Farmer not found");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const createOrder = async (value) => {
-    const order_number = "2015112910";
-    setQrData(order_number);
-    setData([]);
-    setModalVisible(true);
+    const orderNumber = "2015112910";
+    setQrData(orderNumber);
     setOrderTitle(value.name);
+    setQRCodeModalVisible(true);
 
     try {
       const jsonValue = JSON.stringify({
@@ -49,7 +109,7 @@ export default function SearchScreen() {
         supplier_phone: value.phone,
       });
 
-      await AsyncStorage.setItem(order_number, jsonValue);
+      await AsyncStorage.setItem(orderNumber, jsonValue);
     } catch (e) {
       console.log(e);
     }
@@ -64,9 +124,11 @@ export default function SearchScreen() {
       250
     );
     SunmiPrinter.lineWrap(1);
-    SunmiPrinter.printerText("Farmer Name: " + order_title);
+    SunmiPrinter.printerText("Jina Kamili: " + orderTitle);
     SunmiPrinter.lineWrap(2);
-    SunmiPrinter.printerText("Order No: " + qrData);
+    SunmiPrinter.printerText("Kumbu Na: " + qrData);
+    SunmiPrinter.lineWrap(1);
+    SunmiPrinter.printerText("Tarehe: 24/06/2024");
     SunmiPrinter.lineWrap(2);
     SunmiPrinter.printerText("CHAKE CHAKE STATION");
     SunmiPrinter.lineWrap(2);
@@ -74,75 +136,155 @@ export default function SearchScreen() {
     SunmiPrinter.printBarCode(qrData, 4, 50, 250, 2);
     SunmiPrinter.lineWrap(3);
     SunmiPrinter.printerText("Asante kwa Kuuza Karafuu Zako ZSTC!");
+    SunmiPrinter.lineWrap(5);
   };
 
-  const onChangeText = (text) => {
-    setInput(text);
-    // Simulating a fast search by filtering local data
-    if (text.length > 0) {
-      const filteredData = sample_data.filter((item) =>
-        item.name.toLowerCase().includes(text.toLowerCase())
-      );
-      setData(filteredData);
+  const searchFilterFunction = (text) => {
+    if (text) {
+      const newData = data.filter((item) => {
+        const itemData = item.name ? item.name.toUpperCase() : "".toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setFilteredData(newData);
+      setInput(text);
     } else {
-      setData([]);
+      setFilteredData(data);
+      setInput(text);
     }
   };
 
-  const getItemText = (item) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemPhone}>{item.phone}</Text>
-    </View>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          onChangeText={onChangeText}
-          value={input}
-          style={styles.input}
-          placeholder="Enter Farmer Name"
-          placeholderTextColor="#999"
-        />
-        <TouchableOpacity onPress={handleAddSupplier} style={styles.addButton}>
-          <Icon name="plus" size={20} color="black" />
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Farmers</Text>
+        <TouchableOpacity onPress={handleAddFarmer} style={styles.addButton}>
+          <Icon name="plus" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
-
-      {input.length > 0 && data.length > 0 && (
-        <FlatList
-          data={data}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => createOrder(item)}
-              style={styles.itemButton}
-            >
-              {getItemText(item)}
-            </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item.id.toString()}
-        />
-      )}
-
-      <Modal animationType="slide" transparent={true} visible={isModalVisible}>
+      <TextInput
+        style={styles.searchBar}
+        value={input}
+        placeholder="Search Farmers"
+        onChangeText={(text) => searchFilterFunction(text)}
+      />
+      <FlatList
+        data={filteredData}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => createOrder(item)}
+          >
+            <Text style={styles.itemText}>{item.name}</Text>
+            <Text style={styles.itemText}>{item.phone}</Text>
+          </TouchableOpacity>
+        )}
+      />
+      <Modal visible={isModalVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>{order_title}</Text>
-          <QRCode
-            value={qrData}
-            size={250}
-            ecl="LOW"
-            bgColor="#4CAF50"
-            fgColor="#ffffff"
-          />
-          <View style={styles.modalButtonContainer}>
-            <Button title="Print Order" onPress={handlePrint} />
-            <Button
-              title="Cancel"
-              style={{ backgroundColor: "red" }}
-              onPress={() => setModalVisible(false)}
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add New Farmer</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="NIN"
+              value={newFarmer.nin}
+              onChangeText={(text) => {
+                setNewFarmer({ ...newFarmer, nin: text });
+                fetchFarmerName(text);
+              }}
+              keyboardType="numeric"
             />
+            <TextInput
+              style={styles.input}
+              placeholder="Name"
+              value={newFarmer.name}
+              onChangeText={(text) =>
+                setNewFarmer({ ...newFarmer, name: text })
+              }
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Phone"
+              value={newFarmer.phone}
+              onChangeText={(text) =>
+                setNewFarmer({ ...newFarmer, phone: text })
+              }
+              keyboardType="phone-pad"
+            />
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleSaveFarmer}
+              >
+                <Text style={styles.buttonText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <Modal visible={isQRCodeModalVisible} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              Order QR Code for {orderTitle}
+            </Text>
+            <QRCode value={qrData} size={200} />
+            <Text style={styles.paymentMethodTitle}>
+              Select Payment Method:
+            </Text>
+            <View style={styles.paymentMethodContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.paymentMethodButton,
+                  selectedPaymentMethod === "Tigo Pesa" &&
+                    styles.selectedPaymentMethod,
+                ]}
+                onPress={() => setSelectedPaymentMethod("Tigo Pesa")}
+              >
+                <Text style={styles.paymentMethodText}>Tigo Pesa</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.paymentMethodButton,
+                  selectedPaymentMethod === "Cash" &&
+                    styles.selectedPaymentMethod,
+                ]}
+                onPress={() => setSelectedPaymentMethod("Cash")}
+              >
+                <Text style={styles.paymentMethodText}>Cash</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.paymentMethodButton,
+                  selectedPaymentMethod === "Bank" &&
+                    styles.selectedPaymentMethod,
+                ]}
+                onPress={() => setSelectedPaymentMethod("Bank")}
+              >
+                <Text style={styles.paymentMethodText}>Bank</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handlePrint}
+              >
+                <Text style={styles.buttonText}>Print</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setQRCodeModalVisible(false)}
+              >
+                <Text style={styles.buttonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -153,69 +295,106 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    padding: 10,
+    backgroundColor: "#f8f8f8",
   },
-  headTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-    marginTop: 10,
-  },
-  searchContainer: {
+  header: {
     flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 10,
+    justifyContent: "space-between",
+    padding: 20,
+    backgroundColor: "#4CAF50",
   },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginRight: 10,
+  headerText: {
+    fontSize: 20,
+    color: "#fff",
   },
   addButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "#4CAF50",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 50,
   },
-  itemButton: {
+  searchBar: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
-    marginBottom: 10,
+    borderColor: "#ccc",
     padding: 10,
+    margin: 20,
+    borderRadius: 5,
+    fontSize: 18,
+    width: "90%",
+    alignSelf: "center",
   },
-  itemContainer: {
-    marginBottom: 5,
+  item: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
   },
-  itemName: {
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  itemPhone: {
-    fontSize: 14,
-    color: "#666",
+  itemText: {
+    fontSize: 18,
   },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(10, 20, 30, .9)",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 20,
     marginBottom: 20,
-    color: "#fff",
+    textAlign: "center",
   },
-  modalButtonContainer: {
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 10,
+    marginBottom: 20,
+    borderRadius: 5,
+    fontSize: 18,
+  },
+  buttonContainer: {
     marginTop: 20,
-    columnGap: 10,
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
+  },
+  modalButton: {
+    flex: 1,
+    backgroundColor: "#4CAF50",
+    padding: 15,
+    borderRadius: 5,
+    alignItems: "center",
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+  },
+  paymentMethodContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  paymentMethodTitle: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  paymentMethodButton: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginRight: 10,
+  },
+  paymentMethodText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  selectedPaymentMethod: {
+    backgroundColor: "#F4CB45",
   },
 });
